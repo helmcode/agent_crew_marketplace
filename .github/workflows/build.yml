@@ -90,6 +90,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate image structure
+        run: |
+          dir="${{ matrix.image }}"
+          errors=()
+
+          [[ ! -f "$dir/Dockerfile" ]] && errors+=("Missing Dockerfile")
+          [[ ! -f "$dir/VERSION" ]]    && errors+=("Missing VERSION")
+          [[ ! -f "$dir/README.md" ]]  && errors+=("Missing README.md")
+
+          agent_type="${dir%%/*}"
+          if [[ "$agent_type" != "claude_code" && "$agent_type" != "open_code" ]]; then
+            errors+=("Invalid agent type '$agent_type'. Must be claude_code/ or open_code/")
+          fi
+
+          if [[ -f "$dir/VERSION" ]]; then
+            version=$(cat "$dir/VERSION" | tr -d '[:space:]')
+            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              errors+=("VERSION must be valid semver (e.g., 0.1.0), got: '$version'")
+            fi
+          fi
+
+          if [[ ${#errors[@]} -gt 0 ]]; then
+            echo "::error::Structure validation failed for $dir:"
+            for err in "${errors[@]}"; do
+              echo "::error::  - $err"
+            done
+            echo ""
+            echo "Required structure:"
+            echo "  $dir/"
+            echo "  ├── Dockerfile"
+            echo "  ├── README.md"
+            echo "  └── VERSION"
+            exit 1
+          fi
+
+          echo "✓ Structure valid for $dir"
+
       - name: Compute image name and version
         id: meta
         run: |
