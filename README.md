@@ -1,6 +1,6 @@
 # AgentCrew Marketplace
 
-Pre-built custom agent images for [AgentCrew](https://github.com/helmcode/agent_crew).
+Pre-built custom agent images for [AgentCrew](https://agentcrew.sh).
 
 ## Repository Structure
 
