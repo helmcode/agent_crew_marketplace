@@ -10,6 +10,7 @@ Custom AgentCrew image with AWS CLI pre-installed for OpenCode agents.
 
 | Tool | Version |
 |------|---------|
+| Python | 3.x |
 | AWS CLI | v2 (latest) |
 
 ## Usage
