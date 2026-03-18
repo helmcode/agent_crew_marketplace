@@ -7,13 +7,14 @@ Pre-built custom agent images for [AgentCrew](https://github.com/helmcode/agent_
 ```
 <agent_type>/<image_name>/
 ├── Dockerfile
+├── README.md
 └── VERSION
 ```
 
 | Directory | Base Image | Image Prefix |
 |-----------|-----------|--------------|
-| `claude_code/` | `ghcr.io/helmcode/agent_crew_agent:latest` | `agentcrew-cc-` |
-| `open_code/` | `ghcr.io/helmcode/agent_crew_opencode_agent:latest` | `agentcrew-oc-` |
+| `claude_code/` | `ghcr.io/helmcode/agent_crew_agent:0.3.6` | `agentcrew-cc-` |
+| `open_code/` | `ghcr.io/helmcode/agent_crew_opencode_agent:0.3.6` | `agentcrew-oc-` |
 
 ### Naming Convention
 
@@ -53,11 +54,12 @@ See the [Custom Agent Images](https://agentcrew.sh/docs/configuration#custom-age
 
 1. Choose the agent type directory: `claude_code/` or `open_code/`
 2. Create a subdirectory with a descriptive name (e.g., `aws`, `gcp`, `playwright`)
-3. Add a `Dockerfile` extending the corresponding base image:
-   - Claude Code → `FROM ghcr.io/helmcode/agent_crew_agent:latest`
-   - OpenCode → `FROM ghcr.io/helmcode/agent_crew_opencode_agent:latest`
-4. Add a `VERSION` file with the image version (e.g., `0.1.0`)
-5. Push to `main` — only changed directories are built and published
+3. Add a `Dockerfile` extending the corresponding base image (pin to a specific version):
+   - Claude Code → `FROM ghcr.io/helmcode/agent_crew_agent:<version>`
+   - OpenCode → `FROM ghcr.io/helmcode/agent_crew_opencode_agent:<version>`
+4. Add a `README.md` with base image version, additional tools, and usage
+5. Add a `VERSION` file with the image version (e.g., `0.1.0`)
+6. Push to `main` — only changed directories are built and published
 
 ### CI Pipeline
 
