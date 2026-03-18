@@ -16,7 +16,7 @@ ghcr.io/helmcode/agentcrew-<image-name>:latest
 
 | Image | Base | Description |
 |-------|------|-------------|
-| *Coming soon* | | |
+| [`aws`](aws/) | Claude Code Agent | AWS CLI v2 |
 
 ## Building Custom Images
 
@@ -28,4 +28,5 @@ See the [Custom Agent Images](https://agentcrew.sh/docs/configuration#custom-age
 2. Add a `Dockerfile` extending one of the base images:
    - `ghcr.io/helmcode/agent_crew_agent:latest` (Claude Code)
    - `ghcr.io/helmcode/agent_crew_opencode_agent:latest` (OpenCode)
-3. Push to `main` — only the changed directory will be built and published
+3. Add a `VERSION` file with the image version (e.g., `0.1.0`)
+4. Push to `main` — only the changed directory will be built and published
