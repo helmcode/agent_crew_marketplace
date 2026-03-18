@@ -39,7 +39,9 @@ Examples:
 
 ### OpenCode (`oc`)
 
-*Coming soon*
+| Image | Description | Usage |
+|-------|-------------|-------|
+| [`aws`](open_code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-oc-aws:latest` |
 
 ## Usage
 
