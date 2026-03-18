@@ -1,4 +1,4 @@
-FROM ghcr.io/helmcode/agent_crew_opencode_agent:latest
+FROM ghcr.io/helmcode/agent_crew_opencode_agent:0.3.6
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
