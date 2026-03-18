@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: 'Specific image directory to build (leave empty to build all)'
+        description: 'Image path to build, e.g. claude_code/aws (leave empty to build all)'
         required: false
         type: string
 
@@ -30,6 +30,12 @@ jobs:
       - name: Determine which images to build
         id: changes
         run: |
+          # Helper: find all image dirs (2 levels: agent_type/image_name)
+          find_all() {
+            find . -maxdepth 3 -mindepth 3 -name Dockerfile -exec dirname {} \; \
+              | sed 's|^./||' | sort
+          }
+
           if [[ -n "${{ inputs.image }}" ]]; then
             # Manual trigger: specific image
             if [[ ! -f "${{ inputs.image }}/Dockerfile" ]]; then
@@ -40,21 +46,19 @@ jobs:
 
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             # Manual trigger without input: build all
-            dirs=$(find . -maxdepth 2 -name Dockerfile -exec dirname {} \; \
-              | sed 's|^./||' | sort | jq -R . | jq -s -c .)
+            dirs=$(find_all | jq -R . | jq -s -c .)
 
           else
             # Push event: check what changed
             prev_commit="${{ github.event.before }}"
 
-            # Handle first push (no previous commit)
             if [[ "$prev_commit" == "0000000000000000000000000000000000000000" ]]; then
-              dirs=$(find . -maxdepth 2 -name Dockerfile -exec dirname {} \; \
-                | sed 's|^./||' | sort | jq -R . | jq -s -c .)
+              dirs=$(find_all | jq -R . | jq -s -c .)
             else
-              # Only build directories that changed
+              # Detect changed image dirs (agent_type/image_name)
               dirs=$(git diff --name-only "$prev_commit" HEAD \
-                | grep '/' | cut -d'/' -f1 | sort -u \
+                | grep -E '^[^/]+/[^/]+/' \
+                | cut -d'/' -f1,2 | sort -u \
                 | while read -r dir; do
                     [[ -f "$dir/Dockerfile" ]] && echo "$dir"
                   done | jq -R . | jq -s -c .)
@@ -86,9 +90,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read version
-        id: version
-        run: echo "version=$(cat ${{ matrix.image }}/VERSION)" >> "$GITHUB_OUTPUT"
+      - name: Compute image name and version
+        id: meta
+        run: |
+          dir="${{ matrix.image }}"
+          agent_type="${dir%%/*}"
+          image_name="${dir#*/}"
+
+          case "$agent_type" in
+            claude_code) prefix="cc" ;;
+            open_code)   prefix="oc" ;;
+            *)           echo "::error::Unknown agent type: $agent_type"; exit 1 ;;
+          esac
+
+          version=$(cat "$dir/VERSION")
+
+          echo "tag=agentcrew-${prefix}-${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -110,8 +128,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/helmcode/agentcrew-${{ matrix.image }}:${{ steps.version.outputs.version }}
-            ghcr.io/helmcode/agentcrew-${{ matrix.image }}:latest
+            ghcr.io/helmcode/${{ steps.meta.outputs.tag }}:${{ steps.meta.outputs.version }}
+            ghcr.io/helmcode/${{ steps.meta.outputs.tag }}:latest
           labels: |
             org.opencontainers.image.source=https://github.com/helmcode/agent_crew_marketplace
-            org.opencontainers.image.description=AgentCrew marketplace image - ${{ matrix.image }}
+            org.opencontainers.image.description=AgentCrew marketplace image - ${{ steps.meta.outputs.tag }}
