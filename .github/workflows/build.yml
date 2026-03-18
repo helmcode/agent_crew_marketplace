@@ -1,0 +1,122 @@
+name: Build & Publish Images
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Specific image directory to build (leave empty to build all)'
+        required: false
+        type: string
+
+jobs:
+  detect:
+    name: Detect changed images
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changes.outputs.matrix }}
+      has_images: ${{ steps.changes.outputs.has_images }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine which images to build
+        id: changes
+        run: |
+          if [[ -n "${{ inputs.image }}" ]]; then
+            # Manual trigger: specific image
+            if [[ ! -f "${{ inputs.image }}/Dockerfile" ]]; then
+              echo "::error::No Dockerfile found in ${{ inputs.image }}/"
+              exit 1
+            fi
+            dirs='["${{ inputs.image }}"]'
+
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual trigger without input: build all
+            dirs=$(find . -maxdepth 2 -name Dockerfile -exec dirname {} \; \
+              | sed 's|^./||' | sort | jq -R . | jq -s -c .)
+
+          else
+            # Push event: check what changed
+            prev_commit="${{ github.event.before }}"
+
+            # Handle first push (no previous commit)
+            if [[ "$prev_commit" == "0000000000000000000000000000000000000000" ]]; then
+              dirs=$(find . -maxdepth 2 -name Dockerfile -exec dirname {} \; \
+                | sed 's|^./||' | sort | jq -R . | jq -s -c .)
+            else
+              # If VERSION changed, rebuild everything
+              if git diff --name-only "$prev_commit" HEAD | grep -q '^VERSION$'; then
+                dirs=$(find . -maxdepth 2 -name Dockerfile -exec dirname {} \; \
+                  | sed 's|^./||' | sort | jq -R . | jq -s -c .)
+              else
+                # Only build directories that changed
+                dirs=$(git diff --name-only "$prev_commit" HEAD \
+                  | grep '/' | cut -d'/' -f1 | sort -u \
+                  | while read -r dir; do
+                      [[ -f "$dir/Dockerfile" ]] && echo "$dir"
+                    done | jq -R . | jq -s -c .)
+              fi
+            fi
+          fi
+
+          if [[ "$dirs" == "[]" || "$dirs" == "null" || -z "$dirs" ]]; then
+            echo "has_images=false" >> "$GITHUB_OUTPUT"
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_images=true" >> "$GITHUB_OUTPUT"
+            echo "matrix=$dirs" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "Images to build: $dirs"
+
+  build:
+    name: Build ${{ matrix.image }}
+    needs: detect
+    if: needs.detect.outputs.has_images == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.detect.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.image }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/helmcode/agentcrew-${{ matrix.image }}:${{ steps.version.outputs.version }}
+            ghcr.io/helmcode/agentcrew-${{ matrix.image }}:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/helmcode/agent_crew_marketplace
+            org.opencontainers.image.description=AgentCrew marketplace image - ${{ matrix.image }}
