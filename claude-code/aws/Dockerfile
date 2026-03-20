@@ -1,4 +1,4 @@
-FROM ghcr.io/helmcode/agent_crew_opencode_agent:0.3.6
+FROM ghcr.io/helmcode/agent_crew_agent:0.3.7
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \

@@ -100,8 +100,8 @@ jobs:
           [[ ! -f "$dir/README.md" ]]  && errors+=("Missing README.md")
 
           agent_type="${dir%%/*}"
-          if [[ "$agent_type" != "claude_code" && "$agent_type" != "open_code" ]]; then
-            errors+=("Invalid agent type '$agent_type'. Must be claude_code/ or open_code/")
+          if [[ "$agent_type" != "claude-code" && "$agent_type" != "open-code" ]]; then
+            errors+=("Invalid agent type '$agent_type'. Must be claude-code/ or open-code/")
           fi
 
           if [[ -f "$dir/VERSION" ]]; then
@@ -135,8 +135,8 @@ jobs:
           image_name="${dir#*/}"
 
           case "$agent_type" in
-            claude_code) prefix="cc" ;;
-            open_code)   prefix="oc" ;;
+            claude-code) prefix="cc" ;;
+            open-code)   prefix="oc" ;;
             *)           echo "::error::Unknown agent type: $agent_type"; exit 1 ;;
           esac
 

@@ -4,7 +4,7 @@ Custom AgentCrew image with AWS CLI pre-installed for Claude Code agents.
 
 ## Base Image
 
-`ghcr.io/helmcode/agent_crew_agent:0.3.6`
+`ghcr.io/helmcode/agent_crew_agent:0.3.7`
 
 ## Additional Tools
 

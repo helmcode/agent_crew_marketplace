@@ -13,8 +13,8 @@ Pre-built custom agent images for [AgentCrew](https://agentcrew.sh).
 
 | Directory | Base Image | Image Prefix |
 |-----------|-----------|--------------|
-| `claude_code/` | `ghcr.io/helmcode/agent_crew_agent:0.3.6` | `agentcrew-cc-` |
-| `open_code/` | `ghcr.io/helmcode/agent_crew_opencode_agent:0.3.6` | `agentcrew-oc-` |
+| `claude-code/` | `ghcr.io/helmcode/agent_crew_agent:0.3.7` | `agentcrew-cc-` |
+| `open-code/` | `ghcr.io/helmcode/agent_crew_opencode_agent:0.3.7` | `agentcrew-oc-` |
 
 ### Naming Convention
 
@@ -26,9 +26,9 @@ Examples:
 
 | Path | Published Image |
 |------|----------------|
-| `claude_code/aws/` | `ghcr.io/helmcode/agentcrew-cc-aws:latest` |
-| `claude_code/gcp/` | `ghcr.io/helmcode/agentcrew-cc-gcp:latest` |
-| `open_code/aws/` | `ghcr.io/helmcode/agentcrew-oc-aws:latest` |
+| `claude-code/aws/` | `ghcr.io/helmcode/agentcrew-cc-aws:latest` |
+| `claude-code/gcp/` | `ghcr.io/helmcode/agentcrew-cc-gcp:latest` |
+| `open-code/aws/` | `ghcr.io/helmcode/agentcrew-oc-aws:latest` |
 
 ## Available Images
 
@@ -36,13 +36,15 @@ Examples:
 
 | Image | Description | Usage |
 |-------|-------------|-------|
-| [`aws`](claude_code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-cc-aws:latest` |
+| [`aws`](claude-code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-cc-aws:latest` |
+| [`helmcode-finops`](claude-code/helmcode-finops/) | Helmcode FinOps CLI | `ghcr.io/helmcode/agentcrew-cc-helmcode-finops:latest` |
 
 ### OpenCode (`oc`)
 
 | Image | Description | Usage |
 |-------|-------------|-------|
-| [`aws`](open_code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-oc-aws:latest` |
+| [`aws`](open-code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-oc-aws:latest` |
+| [`helmcode-finops`](open-code/helmcode-finops/) | Helmcode FinOps CLI | `ghcr.io/helmcode/agentcrew-oc-helmcode-finops:latest` |
 
 ## Usage
 
@@ -52,7 +54,7 @@ See the [Custom Agent Images](https://agentcrew.sh/docs/configuration#custom-age
 
 ## Contributing
 
-1. Choose the agent type directory: `claude_code/` or `open_code/`
+1. Choose the agent type directory: `claude-code/` or `open-code/`
 2. Create a subdirectory with a descriptive name (e.g., `aws`, `gcp`, `playwright`)
 3. Add a `Dockerfile` extending the corresponding base image (pin to a specific version):
    - Claude Code → `FROM ghcr.io/helmcode/agent_crew_agent:<version>`
@@ -64,6 +66,6 @@ See the [Custom Agent Images](https://agentcrew.sh/docs/configuration#custom-age
 ### CI Pipeline
 
 - **Push to `main`**: detects changed directories and builds only those images
-- **Manual trigger**: build all images or a specific one (e.g., `claude_code/aws`)
+- **Manual trigger**: build all images or a specific one (e.g., `claude-code/aws`)
 - All images are built for **linux/amd64** and **linux/arm64**
 - Each image is tagged with its `VERSION` and `latest`
