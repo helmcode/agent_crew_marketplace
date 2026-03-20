@@ -38,6 +38,7 @@ Examples:
 |-------|-------------|-------|
 | [`aws`](claude-code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-cc-aws:latest` |
 | [`helmcode-finops`](claude-code/helmcode-finops/) | Helmcode FinOps CLI | `ghcr.io/helmcode/agentcrew-cc-helmcode-finops:latest` |
+| [`browser`](claude-code/browser/) | Agent Browser | `ghcr.io/helmcode/agentcrew-cc-browser:latest` |
 
 ### OpenCode (`oc`)
 
@@ -45,6 +46,7 @@ Examples:
 |-------|-------------|-------|
 | [`aws`](open-code/aws/) | AWS CLI v2 | `ghcr.io/helmcode/agentcrew-oc-aws:latest` |
 | [`helmcode-finops`](open-code/helmcode-finops/) | Helmcode FinOps CLI | `ghcr.io/helmcode/agentcrew-oc-helmcode-finops:latest` |
+| [`browser`](open-code/browser/) | Agent Browser | `ghcr.io/helmcode/agentcrew-oc-browser:latest` |
 
 ## Usage
 

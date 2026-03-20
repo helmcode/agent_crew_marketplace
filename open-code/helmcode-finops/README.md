@@ -1,6 +1,6 @@
 # OpenCode Agent — Helmcode FinOps
 
-Custom AgentCrew image with Helmcode FinOps CLI pre-installed for OpenCode agents.
+Custom AgentCrew image with [Helmcode FinOps CLI](https://github.com/helmcode/finops-cli) pre-installed for OpenCode agents.
 
 ## Base Image
 

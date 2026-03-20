@@ -1,6 +1,6 @@
 # Claude Code Agent — Helmcode FinOps
 
-Custom AgentCrew image with Helmcode FinOps CLI pre-installed for Claude Code agents.
+Custom AgentCrew image with [Helmcode FinOps CLI](https://github.com/helmcode/finops-cli) pre-installed for Claude Code agents.
 
 ## Base Image
 
